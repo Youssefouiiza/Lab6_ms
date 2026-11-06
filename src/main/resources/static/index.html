@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management - Tableau de bord</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+    <!-- Navbar -->
+    <header class="bg-indigo-600 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-tight">Student Management API</h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="/swagger-ui.html" target="_blank" class="bg-indigo-700 hover:bg-indigo-800 text-white text-sm px-4 py-2 rounded-lg font-medium transition inline-flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-book-open"></i> Swagger UI
+                </a>
+                <a href="/api-docs" target="_blank" class="bg-white/10 hover:bg-white/20 text-white text-sm px-3 py-2 rounded-lg transition inline-flex items-center gap-2">
+                    <i class="fa-solid fa-code"></i> OpenAPI JSON
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- Stat Cards -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Total Étudiants</p>
+                    <p id="totalCount" class="text-3xl font-extrabold text-indigo-600 mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Années enregistrées</p>
+                    <p id="totalYears" class="text-3xl font-extrabold text-emerald-600 mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-calendar-alt"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Statut du Serveur</p>
+                    <p class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-2">
+                        <span class="inline-block w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span>
+                        Opérationnel (Port 8080)
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form & Chart Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Add Student Form -->
+            <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-1">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-indigo-600"></i> Ajouter un étudiant
+                </h2>
+                <form id="studentForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="nom">Nom</label>
+                        <input type="text" id="nom" required placeholder="Ex: LACHGAR"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="prenom">Prénom</label>
+                        <input type="text" id="prenom" required placeholder="Ex: Mohamed"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1" for="dateNaissance">Date de Naissance</label>
+                        <input type="date" id="dateNaissance" required
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-check"></i> Enregistrer
+                    </button>
+                </form>
+                <div id="formAlert" class="mt-4 hidden p-3 rounded-lg text-sm"></div>
+            </section>
+
+            <!-- Chart Section -->
+            <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 flex flex-col">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-column text-indigo-600"></i> Répartition par année de naissance (/students/byYear)
+                </h2>
+                <div class="relative flex-1 min-h-[260px] flex items-center justify-center">
+                    <canvas id="byYearChart"></canvas>
+                </div>
+            </section>
+        </div>
+
+        <!-- Student Table Section -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center flex-wrap gap-4">
+                <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-indigo-600"></i> Liste des Étudiants (/students/all)
+                </h2>
+                <button onclick="loadAllData()" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate text-xs"></i> Actualiser
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-3">ID</th>
+                            <th class="px-6 py-3">Nom</th>
+                            <th class="px-6 py-3">Prénom</th>
+                            <th class="px-6 py-3">Date de Naissance</th>
+                            <th class="px-6 py-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="5" class="px-6 py-6 text-center text-slate-400">Chargement des étudiants...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        let myChart = null;
+
+        async function fetchTotalCount() {
+            try {
+                const res = await fetch('/students/count');
+                if (res.ok) {
+                    const count = await res.text();
+                    document.getElementById('totalCount').textContent = count;
+                }
+            } catch (e) {
+                console.error("Erreur count:", e);
+            }
+        }
+
+        async function fetchChartData() {
+            try {
+                const res = await fetch('/students/byYear');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('totalYears').textContent = data.length;
+
+                    const labels = data.map(item => item[0]);
+                    const values = data.map(item => item[1]);
+
+                    const ctx = document.getElementById('byYearChart').getContext('2d');
+                    if (myChart) {
+                        myChart.destroy();
+                    }
+
+                    myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Nombre d\'étudiants',
+                                data: values,
+                                backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                                borderColor: 'rgb(79, 70, 229)',
+                                borderWidth: 1.5,
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1 }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Erreur byYear:", e);
+            }
+        }
+
+        async function fetchStudents() {
+            const tbody = document.getElementById('studentTableBody');
+            try {
+                const res = await fetch('/students/all');
+                if (res.ok) {
+                    const students = await res.json();
+                    if (students.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">Aucun étudiant enregistré pour le moment.</td></tr>`;
+                        return;
+                    }
+
+                    tbody.innerHTML = students.map(s => `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="px-6 py-4 font-mono font-medium text-slate-900">${s.id}</td>
+                            <td class="px-6 py-4 font-semibold text-slate-800">${s.nom}</td>
+                            <td class="px-6 py-4 text-slate-700">${s.prenom}</td>
+                            <td class="px-6 py-4 text-slate-500">${s.dateNaissance || '-'}</td>
+                            <td class="px-6 py-4 text-right">
+                                <button onclick="deleteStudent(${s.id})"
+                                    class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition inline-flex items-center gap-1.5 text-xs font-medium">
+                                    <i class="fa-solid fa-trash"></i> Supprimer
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Erreur lors de la communication avec le backend.</td></tr>`;
+            }
+        }
+
+        async function deleteStudent(id) {
+            if (!confirm(`Confirmer la suppression de l'étudiant ID #${id} ?`)) return;
+            try {
+                const res = await fetch(`/students/delete/${id}`, { method: 'DELETE' });
+                if (res.status === 204) {
+                    loadAllData();
+                } else {
+                    alert('Erreur lors de la suppression de l\'étudiant.');
+                }
+            } catch (e) {
+                alert('Erreur réseau.');
+            }
+        }
+
+        document.getElementById('studentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nom = document.getElementById('nom').value.trim();
+            const prenom = document.getElementById('prenom').value.trim();
+            const dateNaissance = document.getElementById('dateNaissance').value;
+
+            const alertDiv = document.getElementById('formAlert');
+
+            try {
+                const res = await fetch('/students/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nom, prenom, dateNaissance })
+                });
+
+                if (res.status === 201) {
+                    alertDiv.className = "mt-4 p-3 rounded-lg text-sm bg-emerald-50 text-emerald-800 border border-emerald-200 block";
+                    alertDiv.textContent = "Étudiant ajouté avec succès !";
+                    document.getElementById('studentForm').reset();
+                    loadAllData();
+                    setTimeout(() => alertDiv.classList.add('hidden'), 4000);
+                } else {
+                    alertDiv.className = "mt-4 p-3 rounded-lg text-sm bg-red-50 text-red-800 border border-red-200 block";
+                    alertDiv.textContent = "Échec de l'enregistrement de l'étudiant.";
+                    alertDiv.classList.remove('hidden');
+                }
+            } catch (err) {
+                alertDiv.className = "mt-4 p-3 rounded-lg text-sm bg-red-50 text-red-800 border border-red-200 block";
+                alertDiv.textContent = "Erreur de connexion au serveur.";
+                alertDiv.classList.remove('hidden');
+            }
+        });
+
+        function loadAllData() {
+            fetchTotalCount();
+            fetchChartData();
+            fetchStudents();
+        }
+
+        window.onload = loadAllData;
+    </script>
+</body>
+</html>
+
